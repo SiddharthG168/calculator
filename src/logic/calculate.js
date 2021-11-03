@@ -2,6 +2,7 @@ import Big from "big.js";
 
 import operate from "./operate";
 import isNumber from "./isNumber";
+let historyArray = [];
 
 /**
  * Given a button name and a calculator data object, return an updated
@@ -80,6 +81,7 @@ export default function calculate(obj, buttonName) {
 
   if (buttonName === "=") {
     if (obj.next && obj.operation) {
+      historyArray.push(operate(obj.total, obj.next, obj.operation));
       return {
         total: operate(obj.total, obj.next, obj.operation),
         next: null,
@@ -99,6 +101,12 @@ export default function calculate(obj, buttonName) {
       return { total: (-1 * parseFloat(obj.total)).toString() };
     }
     return {};
+  }
+
+  if (buttonName === "History") {
+    return {
+      hist: historyArray.map(ele => {return ele + ', '})
+    };
   }
 
   // Button must be an operation
@@ -121,14 +129,16 @@ export default function calculate(obj, buttonName) {
   // no operation yet, but the user typed one
 
   // The user hasn't typed a number yet, just save the operation
-  if (!obj.next) {
+  if (!obj.next && buttonName !== "History") {
     return { operation: buttonName };
   }
 
   // save the operation and shift 'next' into 'total'
-  return {
-    total: obj.next,
-    next: null,
-    operation: buttonName,
-  };
+  if (buttonName !== "History") {
+    return {
+      total: obj.next,
+      next: null,
+      operation: buttonName,
+    };
+  }
 }
